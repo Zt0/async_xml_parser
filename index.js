@@ -1,27 +1,31 @@
-const fsPromises = require("fs").promises
-const { XMLParser, XMLBuilder, XMLValidator } = require("fast-xml-parser");
-const promisify = require("util").promisify
+import { Worker } from 'worker_threads';
 
-async function readXML(path) {
-    const XMLdata = await fsPromises.readFile(path);
-    return XMLdata
+function chunkify(array, n) {
+  let chunks = [];
+  for (let i = n; i > 0; i--) {
+      chunks.push(array.splice(0, Math.ceil(array.length / i)))
+  }
+  return chunks
 }
 
+let completedWorkers = 0
 
+function run(jobs, concurrentWorkers) {
+  const chunks = chunkify(jobs, concurrentWorkers)
+    
+  const tick = performance.now()
+  for (const x of chunks) {
+    const worker = new Worker("./worker.js");
 
-async function parseXML(xml) {
-    const XMLData = await readXML("./menu.xml")
-    const parser = new XMLParser();
-    console.time()
-    parser.parse(XMLData)
-    parser.parse(XMLData)
-    parser.parse(XMLData)
-    parser.parse(XMLData)
-    parser.parse(XMLData)
-    parser.parse(XMLData)
-    parser.parse(XMLData)
-    parser.parse(XMLData)
-    console.timeEnd()
+    worker.postMessage(x);
+    worker.on("message", () => {
+      console.log(`Worker completed`)
+      completedWorkers++;
+      if (completedWorkers === concurrentWorkers) {
+          console.log(`${concurrentWorkers} workers took ${performance.now() - tick}`)
+          process.exit()
+      }
+    })
+  }
 }
-
-parseXML()
+run(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 1)
