@@ -11,9 +11,10 @@ async function readXML(path) {
 }
 
 
-parentPort.on('message', async (value) => {
-      console.log(value.map(async(v) => {
+parentPort.once('message', async (value) => {
+      const a = await Promise.all(value.map(async(v) => {
           return parser.parse(await readXML(v))
       }))
-  parentPort.postMessage('done')
+
+  parentPort.postMessage(a)
 });

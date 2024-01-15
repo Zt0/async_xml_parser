@@ -9,23 +9,30 @@ function chunkify(array, n) {
 }
 
 let completedWorkers = 0
+export const result = []
+ function run2(jobs, concurrentWorkers) {
+    const tick = performance.now()
+    const chunks = chunkify(jobs, concurrentWorkers)
 
-function run(jobs, concurrentWorkers) {
-  const chunks = chunkify(jobs, concurrentWorkers)
-    
-  const tick = performance.now()
-  for (const x of chunks) {
-    const worker = new Worker("./worker.js");
-
-    worker.postMessage(x);
-    worker.on("message", () => {
-      console.log(`Worker completed`)
-      completedWorkers++;
-      if (completedWorkers === concurrentWorkers) {
-          console.log(`${concurrentWorkers} workers took ${performance.now() - tick}`)
-          process.exit()
-      }
+    return new Promise((resolve, reject) => {
+        for (const chunk of chunks) {
+            const worker = new Worker("./worker.js");
+            worker.postMessage(chunk);
+            worker.once("message", (data) => {
+                console.log(`Worker completed`)
+                result.push(data)
+                completedWorkers++;
+                if (completedWorkers === concurrentWorkers) {
+                    console.log(`${concurrentWorkers} workers took ${performance.now() - tick}`)
+                    resolve(result)
+                }
+            })
+        }
     })
-  }
 }
-run(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 1)
+
+
+    run2(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 4)
+    .then(data => console.log({awaited: data}))
+
+
