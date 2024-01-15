@@ -9,7 +9,8 @@ function chunkify(array, n) {
 }
 
 let completedWorkers = 0
-export const result = []
+const result = []
+
  function run(jobs, concurrentWorkers) {
     const tick = performance.now()
     const chunks = chunkify(jobs, concurrentWorkers)
@@ -27,12 +28,17 @@ export const result = []
                     resolve(result)
                 }
             })
+            worker.once('exit', (code) => {
+                if (code !== 0) {
+                  reject(new Error(`Worker stopped with exit code ${code}`));
+                }
+            });
         }
     })
 }
 
 
-    run(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 4)
-    .then(data => console.log({awaited: data}))
+run(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 4)
+.then(data => console.log({awaited: data}))
 
 
