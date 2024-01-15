@@ -10,7 +10,7 @@ function chunkify(array, n) {
 
 let completedWorkers = 0
 export const result = []
- function run2(jobs, concurrentWorkers) {
+ function run(jobs, concurrentWorkers) {
     const tick = performance.now()
     const chunks = chunkify(jobs, concurrentWorkers)
 
@@ -32,7 +32,7 @@ export const result = []
 }
 
 
-    run2(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 4)
+    run(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 4)
     .then(data => console.log({awaited: data}))
 
 
