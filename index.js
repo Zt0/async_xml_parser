@@ -1,10 +1,12 @@
-import { Worker } from 'worker_threads';
+import { Worker } from 'worker_threads'
 
 function chunkify(array, n) {
-  let chunks = [];
-  for (let i = n; i > 0; i--) {
-      chunks.push(array.splice(0, Math.ceil(array.length / i)))
-  }
+    let chunks = [];
+    let limit = Math.ceil(array.length / n)
+    for (let i = 0; i < n; i++) {
+        let offset = i * limit
+        chunks.push(array.slice(offset, offset + limit))
+    }
   return chunks
 }
 
@@ -30,7 +32,7 @@ const result = []
             })
             worker.once('exit', (code) => {
                 if (code !== 0) {
-                  reject(new Error(`Worker stopped with exit code ${code}`));
+                  reject(new Error(`Worker stopped with exit code ${code}`))
                 }
             });
         }
@@ -38,7 +40,7 @@ const result = []
 }
 
 
-run(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 4)
-.then(data => console.log({awaited: data}))
+run(['./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml','./menu.xml'], 2)
+.then(data => console.log({data}))
 
 
